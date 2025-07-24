@@ -1,21 +1,24 @@
 services:
   postgres:
-#    image: postgres:13
     image: debezium/postgres:15
     container_name: postgres
-    #restart: always
+    restart: always
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-#      POSTGRES_DB: foo
     # Включить логическую репликацию (logical decoding???)
     command:
       -c wal_level=logical
       -c max_wal_senders=3
       -c max_replication_slots=3
       -c max_connections=50
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -30,6 +33,11 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000 #2 sec
+    healthcheck:
+      test: ["CMD", "echo", "ruok", "|", "nc", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - ms-network
 
@@ -37,7 +45,8 @@ services:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "9092:9092"
     environment:
@@ -57,31 +66,29 @@ services:
       - ms-network
 
   connect:
-    image: confluentinc/cp-kafka-connect:7.6.0
-#    image: debezium/connect:2.7.3.Final
+#    image: confluentinc/cp-kafka-connect:7.6.0
+    image: debezium/connect:2.7.3.Final
     container_name: connect
     depends_on:
       kafka:
         condition: service_healthy
-#      - kafka
-#      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
-      CONNECT_REST_ADVERTISED_HOST_NAME: connect
-      CONNECT_GROUP_ID: connect-cluster
-      CONNECT_CONFIG_STORAGE_TOPIC: _connect-configs
-      CONNECT_OFFSET_STORAGE_TOPIC: _connect-offsets
-      CONNECT_STATUS_STORAGE_TOPIC: _connect-status
-      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
-      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
-      CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
-      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
-  #  volumes:
-  #    - ./plugins:/etc/kafka-connect/jars
+      BOOTSTRAP_SERVERS: kafka:9092
+      REST_ADVERTISED_HOST_NAME: connect
+      GROUP_ID: connect-cluster
+      CONFIG_STORAGE_TOPIC: _connect-configs
+      OFFSET_STORAGE_TOPIC: _connect-offsets
+      STATUS_STORAGE_TOPIC: _connect-status
+      KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars"
+      LOG4J_ROOT_LOGLEVEL: INFO
     networks:
       - ms-network
 

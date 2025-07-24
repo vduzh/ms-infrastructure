@@ -1,6 +1,6 @@
 # Kafka
 
-## Создай три системных топика для Kafka Connect 
+## Создай три системных топика для Kafka Connect ???? Походу не надо!!! 
 
 - `docker exec -it kafka bash`
 
@@ -37,3 +37,6 @@ kafka-topics --create \
   --config cleanup.policy=compact
 ```
 
+# Kafka Connect
+
+- http://localhost:8083/connectors
