@@ -1,3 +1,8 @@
+# Docker Compose 
+
+- `docker compose up` - create infrastructure 
+- `docker compose down -v` - delete all with volumes
+
 # Kafka
 
 - `docker exec -it kafka bash`
