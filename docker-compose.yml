@@ -92,8 +92,23 @@ services:
     networks:
       - ms-network
 
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus
+    ports:
+      - "8081:8081" # Порт для доступа к Nexus UI и репозиториям
+    volumes:
+      - nexus-data:/nexus-data # Сохраняем данные Nexus, чтобы они не терялись при перезапуске
+    environment:
+      # Увеличьте лимит памяти, если у вас большой объем данных или много пользователей
+    #  - NEXUS_HEAP_OPTS="-Xmx1024m -Xms1024m"
+      # Добавляем этот параметр для предотвращения раннего закрытия базы данных H2
+      - NEXUS_JAVA_OPTS="-Djdbc.h2.DB_CLOSE_ON_EXIT=FALSE"
+    restart: always
+
 volumes:
   pgdata:
+  nexus-data:
 
 networks:
   ms-network:
