@@ -65,6 +65,20 @@ services:
     networks:
       - ms-network
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "9080:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092 # 9092
+    networks:
+      - ms-network
+
   connect:
 #    image: confluentinc/cp-kafka-connect:7.6.0
     image: debezium/connect:2.7.3.Final

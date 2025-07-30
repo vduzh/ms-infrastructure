@@ -4,6 +4,13 @@
 - `docker compose down` - пересоздать контейнеры
     - `docker compose down -v` - delete all with volumes
 
+
+# Kafka
+
+## Kafka UI
+- `http://localhost:9080/` - админ консоль
+
+
 # Kafka CLI
 
 - `docker exec -it kafka bash`
