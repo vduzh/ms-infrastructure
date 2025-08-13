@@ -168,6 +168,53 @@
   вообще.
     - `TTL city`
 
+# Keycloak
+
+## Create database
+
+👉 Database is available in Docker
+
+- `docker exec -it postgres bash`
+  - `docker exec -it postgres psql -U postgres`
+
+### Scripts
+
+- `docker cp keycloak/. postgres:/tmp` - copy scripts into container
+- `docker exec -it postgres psql -U postgres -f /tmp/drop-db.sql` - drop db
+- `docker exec -it postgres psql -U postgres -f /tmp/create-db.sql` - create db
+
+## Web access
+
+### First login
+
+- http://localhost:8880
+- bootstrap/bootstrap
+
+#### Create a permanent admin
+
+- Войти как bootstrap/bootstrap
+- Перейти в Real: master
+- Перейти в Users
+- Create user: 
+  - Username: admin
+  - Email, First name, Last name — по желанию
+  - Enabled: ✅
+- Перейди на вкладку Credentials → установи пароль
+  - Temporary: ❌ OFF
+- Перейди на вкладку Role Mappings
+  - В списке Assign role выбираем Realm roles
+    - Назначь роли:
+      - или admin если хочешь полный доступ
+      - realm-admin (достаточно для администрирования) ???
+
+# Kong
+
+## Web access
+
+- http://localhost:8001/
+
+
+
 # Nexus
 
 ## Web access
